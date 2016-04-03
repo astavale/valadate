@@ -92,15 +92,17 @@ dnf install valadate
 Once correctly installed and configured, Valadate makes writing tests as simple as:
 
 ```vala
-public class BookTest : Valadate.Framework.TestCase {
+namespace MyTest {
+	public class BookTest : Valadate.Framework.TestCase {
 
-	public void test_construct_book() {
-		
-		// Arrange ...
-		
-		// Act ...
-		
-		// Assert ...
+		public void test_construct_book() {
+			
+			// Arrange ...
+			
+			// Act ...
+			
+			// Assert ...
+		}
 	}
 }
 
@@ -130,29 +132,29 @@ ok 1 /LibraryBookTest/test_construct_book
 The ```[Test]``` annotation and parameters are also available for giving test classes and methods more readable names and for supporting asynchronous tests.
 
 ```vala
+namespace MyTest {
+	[Test (name="Annotated TestCase with name")]
+	public class MyTest : Valadate.Framework.TestCase {
 
-[Test (name="Annotated TestCase with name")]
-public class MyTest : Valadate.Framework.TestCase {
+		[Test (name="Annotated Method With Name")]
+		public void annotated_test_with_name () {
+			assert_true(true);
+		}
 
-	[Test (name="Annotated Method With Name")]
-	public void annotated_test_with_name () {
-		assert_true(true);
+
+		[Test (name="Asynchronous Test", timeout=1000)]
+		public async void test_async () {
+			assert_true(true);
+		}
+
+		[Test (skip="yes")]
+		public void skip_test () {
+			assert_true(false);
+		}
 	}
-
-
-	[Test (name="Asynchronous Test", timeout=1000)]
-	public async void test_async () {
-		assert_true(true);
-	}
-
-	[Test (skip="yes")]
-	public void skip_test () {
-		assert_true(false);
-	}
-
 }
 
-
+$ ./mtest-0 --tap
 
 1..3
 # Start of Annotated TestCase with name tests
