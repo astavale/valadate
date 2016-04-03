@@ -28,6 +28,24 @@ namespace Valadate.Framework {
 	internal static string argv0;
 	internal static string initial_cwd;
 
+	internal const string HELP_STR =
+		"Usage:\n" +
+		"  %s [OPTION...]\n\n" +
+		"Help Options:\n" +
+		"  -h, --help                     Show help options\n\n" +
+		"Test Options:\n" +
+		"  --g-fatal-warnings             Make all warnings fatal\n" +
+		"  -l                             List test cases available in a test executable\n" +
+		"  -m {perf|slow|thorough|quick}  Execute tests according to mode\n" +
+		"  -m {undefined|no-undefined}    Execute tests according to mode\n" +
+		"  -p TESTPATH                    Only start test cases matching TESTPATH\n" +
+		"  -s TESTPATH                    Skip all tests matching TESTPATH\n" +
+		"  -seed=SEEDSTRING               Start tests with random seed SEEDSTRING\n" +
+		"  --debug-log                    debug test logging output\n" +
+		"  -q, --quiet                    Run tests quietly\n" +
+		"  --verbose                      Run tests verbosely\n";
+
+
 	/**
 	 * init:
 	 * @argc: Address of the @argc parameter of the main() function.
@@ -72,6 +90,7 @@ namespace Valadate.Framework {
 	 */
 	public static void init(ref string[] args) {
 		
+		/* make warnings and criticals fatal for all test programs */
 		GLib.LogLevelFlags fatal_mask = Log.set_always_fatal(LogLevelFlags.FLAG_RECURSION | LogLevelFlags.LEVEL_ERROR );
 		fatal_mask = fatal_mask | LogLevelFlags.LEVEL_WARNING | LogLevelFlags.LEVEL_CRITICAL;
 		Log.set_always_fatal(fatal_mask);
@@ -82,13 +101,26 @@ namespace Valadate.Framework {
 		seedstr = "R02S%08x%08x%08x%08x".printf(Random.next_int(), Random.next_int(), Random.next_int(), Random.next_int());
 		
 		if(GLib.Environment.get_prgname() == null && !no_g_set_prgname)
-			GLib.Environment.set_prgname(args[0])
+			GLib.Environment.set_prgname(args[0]);
 		
-		parse_args(ref args);
+		TestConfig config = new TestConfig();
+		
+		parse_args(ref args, ref config);
 		
 		
-		if(tap_log)
 	}
+
+
+#if HAVE_SYS_RESOURCE_H
+	internal struct rlimit {
+		long rlim_cur;
+		long rlim_max;
+	}
+	
+	extern int setrlimit(int resource, rlimit rlim);
+	
+	internal int RLIMIT_CORE = 4;
+#endif
 
 
 	private static void parse_args(ref string[] args, ref TestConfig config) {
@@ -117,46 +149,45 @@ namespace Valadate.Framework {
 			if(args[i].index_of("--GTestLogFD") == 0) {
 				if(args[i].length > 12)
 					if(args[i].data[13] == '=')
-						conf.log_fd = int64.ascii_strtoll (args[i].substring(14), null, 0);
+						conf.log_fd = int64.parse(args[i].substring(14));
 					else if (i + 1 < args.length)
-						conf.log_fd = int64.ascii_strtoll (args[++i], null, 0);
+						conf.log_fd = int64.parse(args[++i]);
 					
 			}
 
 			if(args[i].index_of("--GTestSkipCount") == 0) {
 				if(args[i].length > 16) {
 					if(args[i].data[17] == '=')
-						conf.startup_skip_count = int64.ascii_strtoll (args[i].substring(18), null, 0);
+						conf.startup_skip_count = int64.parse(args[i].substring(18));
 					else if (i + 1 < args.length)
-						conf.startup_skip_count = int64.ascii_strtoll (args[++i], null, 0);
+						conf.startup_skip_count = int64.parse(args[++i]);
 
 				}
 			}
-
 			
-			if("--GTestSubprocess" == arg) {
+			if("--GTestSubprocess" == args[i]) {
 				conf.in_subprocess = true;
+			#if HAVE_SYS_RESOURCE_H
 				// resource limit check and set rlimit
-				#if HAVE_SYS_RESOURCE_H
-				//rlimit limit = { 0, 0 };
-				//setrlimit (4, limit);
-				#endif
+				rlimit limit = { 0, 0 };
+				setrlimit (RLIMIT_CORE, limit);
+			#endif
 				
 			}
-			
+			/*
 			if(args[i].index_of("-p") == 0) {
 				if(args[i].data[3] == '=')
-					// add test
+					conf.test_paths.prepend(args[i].substring(3));
 				else if (i + 1 < args.length)
-					// add test
+					conf.test_paths.prepend(args[++i].substring(3));
 			}
 
 			if(args[i].index_of("-s") == 0) {
 				if(args[i].data[3] == '=')
-					// skip test
+					conf.test_paths_skipped.prepend(args[i].substring(3));
 				else if (i + 1 < args.length)
-					// skip test
-			}
+					conf.test_paths_skipped.prepend(args[++i].substring(3));
+			}*/
 			
 			if(args[i].index_of("-m") == 0) {
 				string mode = "";
@@ -190,7 +221,6 @@ namespace Valadate.Framework {
 						break;
 				
 				}
-
 			}
 			
 			if("--quiet" == args[i] || "-q" == args[i]) {
@@ -206,35 +236,15 @@ namespace Valadate.Framework {
 			if("-l" == args[i])
 				conf.run_list = true;
 
-			if(args[i].index_of("--seed") == 0) {
+			if(args[i].index_of("--seed") == 0)
 				if(args[i].data[6] == '=')
 					conf.seedstr = args[i].substring(6);
 				else if (i + 1 < args.length)
 					conf.seedstr = args[++i];
-			}
 			
-			if("--help" == args[i] || "-h" == args[i] || "-?" == args[i]) {
+			if("--help" == args[i] || "-h" == args[i] || "-?" == args[i])
+				conf.show_help = true;
 				
-				printf ("Usage:\n"
-					"  %s [OPTION...]\n\n"
-					"Help Options:\n"
-					"  -h, --help                     Show help options\n\n"
-					"Test Options:\n"
-					"  --g-fatal-warnings             Make all warnings fatal\n"
-					"  -l                             List test cases available in a test executable\n"
-					"  -m {perf|slow|thorough|quick}  Execute tests according to mode\n"
-					"  -m {undefined|no-undefined}    Execute tests according to mode\n"
-					"  -p TESTPATH                    Only start test cases matching TESTPATH\n"
-					"  -s TESTPATH                    Skip all tests matching TESTPATH\n"
-					"  -seed=SEEDSTRING               Start tests with random seed SEEDSTRING\n"
-					"  --debug-log                    debug test logging output\n"
-					"  -q, --quiet                    Run tests quietly\n"
-					"  --verbose                      Run tests verbosely\n", args[0]);
-				
-				
-			}
-			
-			
 			
 		}
 		

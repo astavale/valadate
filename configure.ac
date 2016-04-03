@@ -214,6 +214,14 @@ AM_CONDITIONAL([HAVE_VALADOC], [test x$have_valadoc = xyes])
 # Introspection
 GOBJECT_INTROSPECTION_CHECK([1.38.0])
 
+dnl === Check for setrlimit ============================================
+
+AC_CHECK_HEADERS([sys/resource.h sys/time.h],
+        [have_sys_resource_h=yes; break;])
+
+AM_CONDITIONAL(HAVE_SYS_RESOURCE_H, test "x$have_sys_resource_h" = "xyes")
+
+
 dnl === Makefiles ======================================================
 
 AC_CONFIG_FILES([
@@ -249,6 +257,8 @@ echo ""
 echo " • Enable code coverage: ${use_gcov}"
 echo ""
 echo " • Building on: ${host_os}"
+echo ""
+echo " • Has sys/resource.h: ${have_sys_resource_h}"
 echo ""
 echo " • Documentation: ${enable_docs}"
 echo ""

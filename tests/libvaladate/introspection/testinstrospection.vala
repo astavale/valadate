@@ -65,6 +65,7 @@ namespace Valadate.Introspection.Tests {
 		
 		public override void set_up() {
 			Repository.add_package(LIBPATH, GIRPATH);
+			
 		}
 
 		public void test_get_class_by_type() {

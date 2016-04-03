@@ -5,6 +5,10 @@ libvaladate_sources = \
 	framework/testsuite.vala \
 	framework/testresult.vala \
 	framework/testrunner.vala \
+	framework/assert.vala \
+	framework/runner.vala \
+	framework/framework.vala \
+	framework/testconfig.vala \
 	introspection/girparser.vala \
 	introspection/introspection.vala \
 	introspection/module.vala \
@@ -12,6 +16,4 @@ libvaladate_sources = \
 	introspection/repository.vala \
 	utils/tempdir.vala \
 	utils/wait.vala \
-	utils/signalwaiter.vala \
-	assert.vala \
-	runner.vala
+	utils/signalwaiter.vala

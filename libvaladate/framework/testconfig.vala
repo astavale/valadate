@@ -27,17 +27,18 @@ namespace Valadate.Framework {
 		public bool quiet {get;set;default=false;}
 		public bool undefined {get;set;default=false;}
 
+		public string seedstr {get;set;}
+
 		internal bool mode_fatal {get;set;default=true;}
 		internal bool debug_log {get;set;default=false;}
 		internal bool tap_log {get;set;default=true;}
 		internal bool in_subprocess {get;set;default=true;}
 		internal bool run_list {get;set;default=false;}
+		internal bool show_help {get;set;default=false;}
 		
 		internal int64 log_fd {get;set;}
 		internal int64 startup_skip_count {get;set;}
 		
-		internal string[] test_paths {get;set;}
-		internal string[] test_paths_skipped {get;set;}
 		
 		
 	}

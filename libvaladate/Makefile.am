@@ -16,11 +16,13 @@ libvaladate_1_0_la_CPPLAGS = \
 	$(VALADATE_CPPFLAGS)
 
 libvaladate_1_0_la_VALAFLAGS = \
+	$(VALADATE_VALAFLAGS) \
 	--library libvaladate-1.0 \
 	--vapi libvaladate-1.0.vapi \
 	-H libvaladate-1.0.h \
-	--gir=Valadate-1.0.gir \
-	$(VALADATE_VALAFLAGS)
+	--internal-vapi libvaladate-internal-1.0.vapi \
+	-h libvaladate-internal-1.0.h \
+	--gir Valadate-1.0.gir
 
 libvaladate_1_0_la_LDFLAGS = \
 	-export-dynamic \
@@ -39,7 +41,7 @@ libvaladate_1_0include_HEADERS = \
 # The cli library which bootstraps cl tests
 
 libvaladate_cli_1_0_la_SOURCES = \
-	cli-main.vala
+	framework/cli-main.vala
 
 libvaladate_cli_1_0_la_CFLAGS = \
 	-I$(top_srcdir)/libvaladate \
@@ -55,6 +57,8 @@ libvaladate_cli_1_0_la_VALAFLAGS = \
 	--library valadate-1.0 \
 	--vapi valadate-1.0.vapi \
 	-H valadate-1.0.h \
+	--internal-vapi valadate-internal-1.0.vapi \
+	-h valadate-internal-1.0.h \
 	$(VALADATE_CLI_VALAFLAGS)
 
 libvaladate_cli_1_0_la_LIBADD = \
@@ -130,7 +134,6 @@ EXTRA_DIST = \
 CLEANFILES += \
 	$(libvaladate_1_0_la_SOURCES:.vala=.c) \
 	$(libvaladate_cli_1_0_la_SOURCES:.vala=.c) \
-	data/*.c \
 	*.vapi \
 	*.h \
 	*.gir \
@@ -140,6 +143,6 @@ DISTCLEANFILES += $(CLEANFILES)
 
 MAINTAINERCLEANFILES = $(DISTCLEANFILES)
 
-.NOTPARALLEL: noinst_LTLIBRARIES
+.NOTPARALLEL: lib_LTLIBRARIES
 
 -include $(top_srcdir)/git.mk
