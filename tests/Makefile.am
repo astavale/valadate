@@ -1,6 +1,6 @@
 include $(top_srcdir)/base.am
 
-SUBDIRS = libvaladate PIE genie
+SUBDIRS = PIE libvaladate genie
 
 clean-local:
 	rm -rf results/valadate-lcov

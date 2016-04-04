@@ -105,7 +105,7 @@ namespace Valadate.Framework {
 		
 		TestConfig config = new TestConfig();
 		
-		parse_args(ref args, ref config);
+		parse_args(ref args, config);
 		
 		
 	}
@@ -117,13 +117,14 @@ namespace Valadate.Framework {
 		long rlim_max;
 	}
 	
+	[ CCode (cname = "setrlimit", cheader_filename = "sys/resource.h") ]
 	extern int setrlimit(int resource, rlimit rlim);
 	
 	internal int RLIMIT_CORE = 4;
 #endif
 
 
-	private static void parse_args(ref string[] args, ref TestConfig config) {
+	private static TestConfig parse_args(ref string[] args, TestConfig? config = null) {
 	
 		var conf = config ?? new TestConfig();
 		
@@ -146,52 +147,48 @@ namespace Valadate.Framework {
 			else if("--tap" == args[i])
 				conf.tap_log = true;
 
-			if(args[i].index_of("--GTestLogFD") == 0) {
-				if(args[i].length > 12)
-					if(args[i].data[13] == '=')
-						conf.log_fd = int64.parse(args[i].substring(14));
-					else if (i + 1 < args.length)
-						conf.log_fd = int64.parse(args[++i]);
+			else if(args[i].index_of("--GTestLogFD") == 0) {
+				if(args[i].length > 12 && args[i].data[12] == '=')
+					conf.log_fd = int64.parse(args[i].substring(13));
+				else if (i + 1 < args.length)
+					conf.log_fd = int64.parse(args[++i]);
 					
 			}
 
-			if(args[i].index_of("--GTestSkipCount") == 0) {
-				if(args[i].length > 16) {
-					if(args[i].data[17] == '=')
-						conf.startup_skip_count = int64.parse(args[i].substring(18));
-					else if (i + 1 < args.length)
-						conf.startup_skip_count = int64.parse(args[++i]);
-
-				}
+			else if(args[i].index_of("--GTestSkipCount") == 0) {
+				if(args[i].length > 16 && args[i].data[16] == '=')
+					conf.startup_skip_count = int64.parse(args[i].substring(17));
+				else if (i + 1 < args.length)
+					conf.startup_skip_count = int64.parse(args[++i]);
 			}
 			
-			if("--GTestSubprocess" == args[i]) {
+			else if("--GTestSubprocess" == args[i]) {
 				conf.in_subprocess = true;
 			#if HAVE_SYS_RESOURCE_H
 				// resource limit check and set rlimit
-				rlimit limit = { 0, 0 };
-				setrlimit (RLIMIT_CORE, limit);
+				setrlimit (RLIMIT_CORE, { 0, 0 });
 			#endif
 				
 			}
-			/*
-			if(args[i].index_of("-p") == 0) {
-				if(args[i].data[3] == '=')
+
+			
+			else if(args[i].index_of("-p") == 0) {
+				if(args[i].length > 2 && args[i].data[2] == '=')
 					conf.test_paths.prepend(args[i].substring(3));
 				else if (i + 1 < args.length)
-					conf.test_paths.prepend(args[++i].substring(3));
+					conf.test_paths.prepend(args[++i]);
 			}
 
-			if(args[i].index_of("-s") == 0) {
-				if(args[i].data[3] == '=')
+			else if(args[i].index_of("-s") == 0) {
+				if(args[i].length > 2 && args[i].data[2] == '=')
 					conf.test_paths_skipped.prepend(args[i].substring(3));
 				else if (i + 1 < args.length)
-					conf.test_paths_skipped.prepend(args[++i].substring(3));
-			}*/
+					conf.test_paths_skipped.prepend(args[++i]);
+			}
 			
-			if(args[i].index_of("-m") == 0) {
+			else if(args[i].index_of("-m") == 0) {
 				string mode = "";
-				if(args[i].data[3] == '=')
+				if(args[i].length > 2 && args[i].data[2] == '=')
 					mode = args[i].substring(3);
 				else if (i + 1 < args.length)
 					mode = args[++i];
@@ -204,7 +201,7 @@ namespace Valadate.Framework {
 						conf.quick = false;
 						break;
 					case "thorough":
-						conf.quick = true;
+						conf.quick = false;
 						break;
 					case "quick":
 						conf.quick = true;
@@ -223,30 +220,34 @@ namespace Valadate.Framework {
 				}
 			}
 			
-			if("--quiet" == args[i] || "-q" == args[i]) {
+			else if("--quiet" == args[i] || "-q" == args[i]) {
 				conf.quiet = true;
 				conf.verbose = false;
 			}
 	
-			if("--verbose" == args[i] || "-v" == args[i]) {
+			else if("--verbose" == args[i] || "-v" == args[i]) {
 				conf.quiet = false;
 				conf.verbose = true;
 			}
 			
-			if("-l" == args[i])
+			else if("-l" == args[i])
 				conf.run_list = true;
 
-			if(args[i].index_of("--seed") == 0)
-				if(args[i].data[6] == '=')
-					conf.seedstr = args[i].substring(6);
+			else if("--help" == args[i] || "-h" == args[i] || "-?" == args[i])
+				conf.show_help = true;
+
+
+			else if(args[i].index_of("--seed") == 0)
+				if(args[i].length > 6 && args[i].data[6] == '=')
+					conf.seedstr = args[i].substring(7);
 				else if (i + 1 < args.length)
 					conf.seedstr = args[++i];
 			
-			if("--help" == args[i] || "-h" == args[i] || "-?" == args[i])
-				conf.show_help = true;
 				
 			
+			
 		}
+		return conf;
 		
 	}
 

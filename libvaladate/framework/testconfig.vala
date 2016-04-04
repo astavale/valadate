@@ -39,7 +39,13 @@ namespace Valadate.Framework {
 		internal int64 log_fd {get;set;}
 		internal int64 startup_skip_count {get;set;}
 		
+		public SList<string> test_paths;
+		public SList<string> test_paths_skipped;
 		
+		construct {
+			test_paths = new SList<string>();
+			test_paths_skipped = new SList<string>();
+		}
 		
 	}
 

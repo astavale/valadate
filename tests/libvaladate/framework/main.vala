@@ -9,6 +9,254 @@ namespace Valadate.Framework.Tests {
 
 		GLib.Test.init (ref args);
 
+
+		GLib.Test.add_func ("/Framework/TestConfig/new", () => {
+			TestConfig conf = new TestConfig();
+			
+			assert(conf != null);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/k", () => {
+
+			string[] testargs = {"-k"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.mode_fatal != true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/keep-going", () => {
+
+			string[] testargs = {"--keep-going"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.mode_fatal != true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/debug-log", () => {
+
+			string[] testargs = {"--debug-log"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.debug_log == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/tap", () => {
+
+			string[] testargs = {"--tap"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.tap_log == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/GTestLogFD", () => {
+
+			string[] testargs = {"--GTestLogFD", "12345"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.log_fd == 12345);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/GTestLogFD/Param", () => {
+
+			string[] testargs = {"--GTestLogFD=12345"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.log_fd == 12345);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/GTestSkipCount", () => {
+
+			string[] testargs = {"--GTestSkipCount","2"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.startup_skip_count == 2);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/GTestSkipCount/Param", () => {
+
+			string[] testargs = {"--GTestSkipCount=2"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.startup_skip_count == 2);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/GTestSubprocess", () => {
+
+			string[] testargs = {"--GTestSubprocess"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.in_subprocess == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/perf", () => {
+
+			string[] testargs = {"-m","perf"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.perf == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/perf/param", () => {
+
+			string[] testargs = {"-m=perf"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.perf == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/slow", () => {
+
+			string[] testargs = {"-m","slow"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.quick == false);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/slow/param", () => {
+
+			string[] testargs = {"-m=slow"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.quick == false);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/thorough", () => {
+
+			string[] testargs = {"-m","thorough"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.quick == false);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/quick", () => {
+
+			string[] testargs = {"-m","quick"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.quick == true);
+			assert(conf.perf == false);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/undefined", () => {
+
+			string[] testargs = {"-m","undefined"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.undefined == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/m/no-undefined", () => {
+
+			string[] testargs = {"-m","no-undefined"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.undefined == false);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/quiet", () => {
+
+			string[] testargs = {"--quiet"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.quiet == true);
+			assert(conf.verbose == false);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/q", () => {
+
+			string[] testargs = {"-q"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.quiet == true);
+			assert(conf.verbose == false);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/verbose", () => {
+
+			string[] testargs = {"--verbose"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.quiet == false);
+			assert(conf.verbose == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/l", () => {
+
+			string[] testargs = {"-l"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.run_list == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/seed", () => {
+
+			string[] testargs = {"--seed","atotallyrandomseedstring"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.seedstr == "atotallyrandomseedstring");
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/seed/param", () => {
+
+			string[] testargs = {"--seed=atotallyrandomseedstring"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.seedstr == "atotallyrandomseedstring");
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/help", () => {
+
+			string[] testargs = {"-h"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.show_help == true);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/p", () => {
+
+			string[] testargs = {"-p", "/MyTest/Path","-p", "/MyTest/Path/2"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.test_paths.length() == 2);
+		});
+
+		GLib.Test.add_func ("/Framework/parse_args/p/param", () => {
+
+			string[] testargs = {"-p=/MyTest/Path","-p=/MyTest/Path/2"};
+			
+			var conf = parse_args(ref testargs);
+			
+			assert(conf.test_paths.length() == 2);
+		});
+
+
+
+
 		GLib.Test.add_func ("/testcase/new", () => {
 			TestCase test = new TestTestCase();
 			assert(test is TestCase);
