@@ -10,7 +10,11 @@ test_programs = tests_libvaladate
 
 
 tests_libvaladate_SOURCES =  \
-	main.vala
+	main.vala \
+	testconfigtests.vala \
+	textrunnertests.vala \
+	testcasetests.vala \
+	assertests.vala
 	
 tests_libvaladate_VALAFLAGS = \
 	$(TESTS_VALAFLAGS)

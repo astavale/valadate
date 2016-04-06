@@ -2,7 +2,9 @@ namespace Valadate.Framework {
 
 	public int main (string[] args) {
 
-		TextRunner runner = new TextRunner(args[0]);
+		TestConfig config = new TestConfig.from_params(ref args);
+
+		TextRunner runner = new TextRunner(config);
 
 		GLib.Test.init(ref args);
 		

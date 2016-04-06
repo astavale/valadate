@@ -18,16 +18,6 @@
 
 namespace Valadate.Framework {
 
-	internal static bool no_g_set_prgname = true;
-	internal static bool tap_log = false;
-	internal static bool mode_fatal = true;
-	internal static bool debug_log = false;
-	internal static bool in_subprocess = false;
-
-	internal static string seedstr;
-	internal static string argv0;
-	internal static string initial_cwd;
-
 	internal const string HELP_STR =
 		"Usage:\n" +
 		"  %s [OPTION...]\n\n" +
@@ -95,24 +85,22 @@ namespace Valadate.Framework {
 		fatal_mask = fatal_mask | LogLevelFlags.LEVEL_WARNING | LogLevelFlags.LEVEL_CRITICAL;
 		Log.set_always_fatal(fatal_mask);
 
-		if ("no_g_set_prgname" in args)
-			no_g_set_prgname = true;
+		//if ("no_g_set_prgname" in args)
+			//no_g_set_prgname = true;
 			
-		seedstr = "R02S%08x%08x%08x%08x".printf(Random.next_int(), Random.next_int(), Random.next_int(), Random.next_int());
+		var seedstr = "R02S%08x%08x%08x%08x".printf(Random.next_int(), Random.next_int(), Random.next_int(), Random.next_int());
 		
-		if(GLib.Environment.get_prgname() == null && !no_g_set_prgname)
-			GLib.Environment.set_prgname(args[0]);
+		//if(GLib.Environment.get_prgname() == null && !no_g_set_prgname)
+		//	GLib.Environment.set_prgname(args[0]);
 		
 		TestConfig config = new TestConfig();
-		
-		parse_args(ref args, config);
 		
 		
 	}
 
 
 #if HAVE_SYS_RESOURCE_H
-	internal struct rlimit {
+	struct rlimit {
 		long rlim_cur;
 		long rlim_max;
 	}
@@ -120,135 +108,8 @@ namespace Valadate.Framework {
 	[ CCode (cname = "setrlimit", cheader_filename = "sys/resource.h") ]
 	extern int setrlimit(int resource, rlimit rlim);
 	
-	internal int RLIMIT_CORE = 4;
+	int RLIMIT_CORE = 4;
 #endif
 
-
-	private static TestConfig parse_args(ref string[] args, TestConfig? config = null) {
-	
-		var conf = config ?? new TestConfig();
-		
-		argv0 = args[0];
-		initial_cwd = GLib.Environment.get_current_dir();
-		
-		for (int i=0; i < args.length; i++) {
-		
-			if("--g-fatal-warnings" == args[i]) {
-				LogLevelFlags fatal_mask = Log.set_always_fatal(LogLevelFlags.FLAG_RECURSION | LogLevelFlags.LEVEL_ERROR );
-				fatal_mask = fatal_mask | LogLevelFlags.LEVEL_WARNING | LogLevelFlags.LEVEL_CRITICAL;
-				Log.set_always_fatal(fatal_mask);
-			}
-			else if("--keep-going" == args[i] || "-k" == args[i])
-				conf.mode_fatal = false;
-				
-			else if("--debug-log" == args[i])
-				conf.debug_log = true;
-				
-			else if("--tap" == args[i])
-				conf.tap_log = true;
-
-			else if(args[i].index_of("--GTestLogFD") == 0) {
-				if(args[i].length > 12 && args[i].data[12] == '=')
-					conf.log_fd = int64.parse(args[i].substring(13));
-				else if (i + 1 < args.length)
-					conf.log_fd = int64.parse(args[++i]);
-					
-			}
-
-			else if(args[i].index_of("--GTestSkipCount") == 0) {
-				if(args[i].length > 16 && args[i].data[16] == '=')
-					conf.startup_skip_count = int64.parse(args[i].substring(17));
-				else if (i + 1 < args.length)
-					conf.startup_skip_count = int64.parse(args[++i]);
-			}
-			
-			else if("--GTestSubprocess" == args[i]) {
-				conf.in_subprocess = true;
-			#if HAVE_SYS_RESOURCE_H
-				// resource limit check and set rlimit
-				setrlimit (RLIMIT_CORE, { 0, 0 });
-			#endif
-				
-			}
-
-			
-			else if(args[i].index_of("-p") == 0) {
-				if(args[i].length > 2 && args[i].data[2] == '=')
-					conf.test_paths.prepend(args[i].substring(3));
-				else if (i + 1 < args.length)
-					conf.test_paths.prepend(args[++i]);
-			}
-
-			else if(args[i].index_of("-s") == 0) {
-				if(args[i].length > 2 && args[i].data[2] == '=')
-					conf.test_paths_skipped.prepend(args[i].substring(3));
-				else if (i + 1 < args.length)
-					conf.test_paths_skipped.prepend(args[++i]);
-			}
-			
-			else if(args[i].index_of("-m") == 0) {
-				string mode = "";
-				if(args[i].length > 2 && args[i].data[2] == '=')
-					mode = args[i].substring(3);
-				else if (i + 1 < args.length)
-					mode = args[++i];
-				
-				switch (mode) {
-					case "perf":
-						conf.perf = true;
-						break;
-					case "slow":
-						conf.quick = false;
-						break;
-					case "thorough":
-						conf.quick = false;
-						break;
-					case "quick":
-						conf.quick = true;
-						conf.perf = false;
-						break;
-					case "undefined":
-						conf.undefined = true;
-						break;
-					case "no-undefined":
-						conf.undefined = false;
-						break;
-					default:
-						// throw ("unknown test mode: -m %s", mode);
-						break;
-				
-				}
-			}
-			
-			else if("--quiet" == args[i] || "-q" == args[i]) {
-				conf.quiet = true;
-				conf.verbose = false;
-			}
-	
-			else if("--verbose" == args[i] || "-v" == args[i]) {
-				conf.quiet = false;
-				conf.verbose = true;
-			}
-			
-			else if("-l" == args[i])
-				conf.run_list = true;
-
-			else if("--help" == args[i] || "-h" == args[i] || "-?" == args[i])
-				conf.show_help = true;
-
-
-			else if(args[i].index_of("--seed") == 0)
-				if(args[i].length > 6 && args[i].data[6] == '=')
-					conf.seedstr = args[i].substring(7);
-				else if (i + 1 < args.length)
-					conf.seedstr = args[++i];
-			
-				
-			
-			
-		}
-		return conf;
-		
-	}
 
 }

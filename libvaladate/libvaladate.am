@@ -6,7 +6,7 @@ libvaladate_sources = \
 	framework/testresult.vala \
 	framework/testrunner.vala \
 	framework/assert.vala \
-	framework/runner.vala \
+	framework/textrunner.vala \
 	framework/framework.vala \
 	framework/testconfig.vala \
 	introspection/girparser.vala \

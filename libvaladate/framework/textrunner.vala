@@ -44,17 +44,53 @@ namespace Valadate.Framework {
 			}
 		}
 		
-		public TextRunner(string path) {
-			this.path = path;
+		public TestConfig config {get;set;}
+		
+		public TestResult result {get;set;default=new TestResult();}
+		
+		public TextRunner(TestConfig config) {
+			this.config = config;
+			this.path = config.binary;
 		}
 		
+		public void run(Test? test = null) {
+			if (test != null)
+				if ((test in _tests) == false)
+					_tests += test;
+			
+			if(this.path != null)
+				load();
+			
+			foreach(Test _test in _tests) {
+				if (config.run_list) {
+					print("%s\n", ((TestCase)_test).name);
+				}
+			}
+		}
+
 		
 		public void load() throws RunError {
+			if(path == null)
+				throw new RunError.MODULE("No test binary found");
+			
+			if(_tests.length > 0)
+				return;
+			
 			string girdir = Path.get_dirname(path).replace(".libs", "");
 			string girfile = girdir + GLib.Path.DIR_SEPARATOR_S + 
 				Path.get_basename(path).replace("lt-","") + ".gir";
 			try {
 				Repository.add_package(path, girfile);
+				
+				// Check for:
+				// TestConfig
+				// TestResult
+				// Load and run
+				// TestSuite
+				// TestCase
+				// Sub Classes
+				
+				
 				load_tests();
 			} catch (Valadate.Introspection.Error e) {
 				throw new RunError.MODULE(e.message);
@@ -67,7 +103,7 @@ namespace Valadate.Framework {
 			public Method end;
 		}
 		
-		public void load_tests() throws RunError {
+		internal void load_tests() throws RunError {
 			Class[] testclasses = Repository.get_class_by_type(typeof(Framework.TestCase));
 
 			foreach (Class testcls in testclasses) {
@@ -163,6 +199,74 @@ namespace Valadate.Framework {
 				}
 			}
 		}
+		
+		internal void test_trap_subprocess (string? test_path, int64 usec_timeout)
+			throws RunError
+		{
+
+
+			/* Sanity check that they used GTestSubprocessFlags, not GTestTrapFlags */
+			//g_assert ((test_flags & (G_TEST_TRAP_INHERIT_STDIN | G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) == 0);
+/*
+			if (test_path) {
+				if (!g_test_suite_case_exists (g_test_get_root (), test_path))
+					g_error ("g_test_trap_subprocess: test does not exist: %s", test_path);
+			} else {
+				test_path = test_run_name;
+			}
+
+			if (g_test_verbose ())
+				g_print ("GTest: subprocess: %s\n", test_path);
+
+			test_trap_clear ();
+			test_trap_last_subprocess = g_strdup (test_path);
+
+
+			var argv = new Array<string>();
+			argv.add(config.binary);
+			argv.add("-q");
+			argv.add("-p");
+			argv.add(test_path);
+			argv.add("--GTestSubprocess");
+
+
+			if (conf.log_fd != -1) {
+				char[128] log_fd_buf;
+				argv.add("--GTestLogFD");
+
+				g_snprintf (log_fd_buf, sizeof (log_fd_buf), "%d", test_log_fd);
+
+				argv.add(log_fd_buf.to_string);
+			}
+
+			var flags = SpawnFlags.DO_NOT_REAP_CHILD;
+
+
+			if (test_flags & G_TEST_TRAP_INHERIT_STDIN)
+				flags |= SpawnFlags.CHILD_INHERITS_STDIN;
+
+			int stdout_fd, stderr_fd;
+			Pid pid;
+
+			try {
+				Process.spawn_async_with_pipes (
+					test_initial_cwd,
+					argv.data, null, flags,
+					null, null,	out pid, null, out stdout_fd, out stderr_fd);
+			} catch (SpawnError e) {
+				error ("test_trap_subprocess() failed: %s\n", error.message);
+			}
+
+			wait_for_child (pid,
+			stdout_fd, !!(test_flags & G_TEST_SUBPROCESS_INHERIT_STDOUT),
+			stderr_fd, !!(test_flags & G_TEST_SUBPROCESS_INHERIT_STDERR),
+			usec_timeout);*/
+		}
+		
+		
+		
+		
+		
 	}
 
 

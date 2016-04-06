@@ -84,4 +84,12 @@ namespace Valadate.Framework.Tests {
 
 	}
 	
+	
+	public class MyTestConfig : TestConfig {
+		
+		construct {
+			quick = true;
+		}
+	}
+	
 }
