@@ -34,19 +34,17 @@ namespace Valadate.Framework {
 	 * Hamill, Paul (2004-11-02). Unit Test Frameworks: Tools for
 	 * High-Quality Software Development (Kindle Locations 2917-2925). O'Reilly Media. Kindle Edition. 
 	 */
-    public class TestResult : Object {
+    public interface TestResult : Object {
 
-		public int error_count {get;internal set;}
-		public int failure_count {get;internal set;}
-		public int run_count {get;internal set;}
+		public abstract int error_count {get;internal set;}
+		public abstract int failure_count {get;internal set;}
+		public abstract int run_count {get;internal set;}
 
-		public void add_error(Test test) {
-			
-		}
+		public abstract void add_error(Test test);
 
-		public void add_failure(Test test) {
-			
-		}
+		public abstract void add_failure(Test test);
+
+		public abstract void report();
 
     }
 

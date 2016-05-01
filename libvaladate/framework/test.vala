@@ -27,7 +27,7 @@ namespace Valadate.Framework {
 		 *
 		 * @param result the TestResult object used to store the results of the Test
 		 */
-		public abstract void run (TestResult? result = null);
+		public abstract TestResult run (TestResult? result = null);
 
 		public delegate void TestMethod ();
 

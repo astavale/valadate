@@ -30,6 +30,8 @@ namespace Valadate.Framework {
 		public bool quiet {get;set;default=false;}
 		public bool undefined {get;set;default=false;}
 
+		public bool fatal_warnings {get;set;default=false;}
+
 		public string seedstr {get;set;}
 
 		internal bool mode_fatal {get;set;default=true;}
@@ -61,11 +63,8 @@ namespace Valadate.Framework {
 			
 			for (int i=0; i < args.length; i++) {
 			
-				if("--g-fatal-warnings" == args[i]) {
-					LogLevelFlags fatal_mask = Log.set_always_fatal(LogLevelFlags.FLAG_RECURSION | LogLevelFlags.LEVEL_ERROR );
-					fatal_mask = fatal_mask | LogLevelFlags.LEVEL_WARNING | LogLevelFlags.LEVEL_CRITICAL;
-					Log.set_always_fatal(fatal_mask);
-				}
+				if("--g-fatal-warnings" == args[i])
+					this.fatal_warnings = true;
 				
 				else if("--keep-going" == args[i] || "-k" == args[i])
 					this.mode_fatal = false;

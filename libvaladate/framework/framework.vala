@@ -18,23 +18,6 @@
 
 namespace Valadate.Framework {
 
-	internal const string HELP_STR =
-		"Usage:\n" +
-		"  %s [OPTION...]\n\n" +
-		"Help Options:\n" +
-		"  -h, --help                     Show help options\n\n" +
-		"Test Options:\n" +
-		"  --g-fatal-warnings             Make all warnings fatal\n" +
-		"  -l                             List test cases available in a test executable\n" +
-		"  -m {perf|slow|thorough|quick}  Execute tests according to mode\n" +
-		"  -m {undefined|no-undefined}    Execute tests according to mode\n" +
-		"  -p TESTPATH                    Only start test cases matching TESTPATH\n" +
-		"  -s TESTPATH                    Skip all tests matching TESTPATH\n" +
-		"  -seed=SEEDSTRING               Start tests with random seed SEEDSTRING\n" +
-		"  --debug-log                    debug test logging output\n" +
-		"  -q, --quiet                    Run tests quietly\n" +
-		"  --verbose                      Run tests verbosely\n";
-
 
 	/**
 	 * init:

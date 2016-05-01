@@ -67,6 +67,9 @@ namespace Valadate.Framework {
 
 		private Adaptor[] adaptors = new Adaptor[0];
 
+		private HashTable<string, Adaptor> tests =
+			new HashTable<string, Adaptor> (str_hash, str_equal);
+
 		
 		construct {
 			name = this.get_type().name();
@@ -85,6 +88,8 @@ namespace Valadate.Framework {
 		{
 			var adaptor = new Adaptor (name, (owned)test, this);
 			this.adaptors += adaptor;
+
+			this.tests.insert(name, adaptor);
 
 			this.suite.add (new GLib.TestCase (adaptor.name,
 											   adaptor.set_up,
@@ -106,6 +111,8 @@ namespace Valadate.Framework {
 			adaptor.async_timeout = timeout;
 			this.adaptors += adaptor;
 
+			this.tests.insert(name, adaptor);
+
 			this.suite.add (new GLib.TestCase (
 				adaptor.name,
 				adaptor.set_up,
@@ -121,9 +128,13 @@ namespace Valadate.Framework {
 		 *
 		 * @param result the TestResult object used to store the results of the Test
 		 */
-		public virtual void run(TestResult? result = null) {}
+		public virtual TestResult run(TestResult? result = null) {
+			return result;
+		}
 
-		public virtual void run_test() {}
+		public virtual TestResult run_test(Test test, TestResult? result = null) {
+			return result;
+		}
 
 		public virtual void set_up () {}
 

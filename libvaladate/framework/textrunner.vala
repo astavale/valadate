@@ -20,6 +20,23 @@ namespace Valadate.Framework {
 
 	using Valadate.Introspection;
 
+	internal const string HELP_STR =
+		"Usage:\n" +
+		"  %s [OPTION...]\n\n" +
+		"Help Options:\n" +
+		"  -h, --help                     Show help options\n\n" +
+		"Test Options:\n" +
+		"  --g-fatal-warnings             Make all warnings fatal\n" +
+		"  -l                             List test cases available in a test executable\n" +
+		"  -m {perf|slow|thorough|quick}  Execute tests according to mode\n" +
+		"  -m {undefined|no-undefined}    Execute tests according to mode\n" +
+		"  -p TESTPATH                    Only start test cases matching TESTPATH\n" +
+		"  -s TESTPATH                    Skip all tests matching TESTPATH\n" +
+		"  -seed=SEEDSTRING               Start tests with random seed SEEDSTRING\n" +
+		"  --debug-log                    debug test logging output\n" +
+		"  -q, --quiet                    Run tests quietly\n" +
+		"  --verbose                      Run tests verbosely\n";
+
 
 	public errordomain RunError {
 		MODULE,
@@ -36,6 +53,8 @@ namespace Valadate.Framework {
 		public delegate void AsyncTestMethodResult(Framework.TestCase self, AsyncResult res);
 		
 		private string path;
+		private string testplan;
+		
 		private Test[] _tests;
 		
 		public Test[] tests {
@@ -44,57 +63,105 @@ namespace Valadate.Framework {
 			}
 		}
 		
-		public TestConfig config {get;set;}
+	    internal class TextTestResult : Object, TestResult {
+
+			public TestConfig config {get;set;}
+
+			public int error_count {get;internal set;}
+			public int failure_count {get;internal set;}
+			public int run_count {get;internal set;}
+
+			public void add_error(Test test) {}
+
+			public void add_failure(Test test){}
+
+			public void report(){
+			
+				if(config.show_help) {
+					print(HELP_STR.printf(config.binary));
+					return;
+				}
+				print("# random seed:%s\n".printf(config.seedstr));
+				
+				
+				
+			}
+
+			public TextTestResult(TestConfig config) {
+				this.config = config;
+			}
+
+		}
 		
-		public TestResult result {get;set;default=new TestResult();}
+		
+		public TestConfig config {get;set;}
 		
 		public TextRunner(TestConfig config) {
 			this.config = config;
 			this.path = config.binary;
 		}
 		
-		public void run(Test? test = null) {
-			if (test != null)
-				if ((test in _tests) == false)
-					_tests += test;
+		public TestResult run(TestResult? result = null) {
+			TestResult _result = result ?? new TextTestResult(config);
 			
-			if(this.path != null)
-				load();
+			if(config.show_help)
+				return _result;
+
+			if(config.fatal_warnings) {
+				LogLevelFlags fatal_mask = Log.set_always_fatal(
+					LogLevelFlags.FLAG_RECURSION | LogLevelFlags.LEVEL_ERROR);
+				fatal_mask = fatal_mask | LogLevelFlags.LEVEL_WARNING |
+					LogLevelFlags.LEVEL_CRITICAL;
+				Log.set_always_fatal(fatal_mask);
+			}
+
+			// Look for the test plan
+			try {
+				load_test_plan();
+				load_binary();
+				load_tests();
+			} catch (RunError e) {
+				// as a backup we search for and add any tests 
+				// inheriting from TestCase
+				// discover_tests();
+			}
+			
 			
 			foreach(Test _test in _tests) {
+				
+				
+				
 				if (config.run_list) {
 					print("%s\n", ((TestCase)_test).name);
 				}
 			}
+			
+			return _result;
 		}
 
 		
-		public void load() throws RunError {
+
+		internal void load_test_plan() throws RunError {
+			string girdir = Path.get_dirname(path).replace(".libs", "");
+			string girfile = girdir + GLib.Path.DIR_SEPARATOR_S + 
+				Path.get_basename(path).replace("lt-","") + ".gir";
+			if(File.new_for_path(girfile).query_exists()) {
+				testplan = girfile;
+				return;
+			}
+			throw new RunError.GIR("No Test Plan found");
+			
+		}
+
+		
+		public void load_binary() throws RunError {
 			if(path == null)
 				throw new RunError.MODULE("No test binary found");
 			
 			if(_tests.length > 0)
 				return;
 			
-			string girdir = Path.get_dirname(path).replace(".libs", "");
-			string girfile = girdir + GLib.Path.DIR_SEPARATOR_S + 
-				Path.get_basename(path).replace("lt-","") + ".gir";
-			try {
-				Repository.add_package(path, girfile);
-				
-				// Check for:
-				// TestConfig
-				// TestResult
-				// Load and run
-				// TestSuite
-				// TestCase
-				// Sub Classes
-				
-				
-				load_tests();
-			} catch (Valadate.Introspection.Error e) {
-				throw new RunError.MODULE(e.message);
-			}
+			Repository.add_package(path, testplan);
 		}
 		
 		

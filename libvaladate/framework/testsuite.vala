@@ -33,7 +33,7 @@ namespace Valadate.Framework {
 
 		public abstract void add_test (Test test);
 
-		public virtual void run (TestResult? result = null) {}
+		public abstract TestResult run (TestResult? result = null);
 
     }
 

@@ -20,7 +20,7 @@ namespace Valadate.Framework {
 
     public interface TestRunner : Object {
 
-		public abstract void run(Test? test = null);
+		public abstract TestResult run(TestResult? result = null);
 
     }
 

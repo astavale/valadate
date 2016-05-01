@@ -185,7 +185,7 @@ AS_IF([test "x$use_gcov" = "xyes"],
         TESTS_LIBS="$TESTS_LIBS $VALADATE_GCOV_LDADD"
       ])
 
-AM_CONDITIONAL(ENABLE_GCOV, test "x$use_gcov" = "xyes")
+AM_CONDITIONAL([ENABLE_GCOV], [test x$use_gcov = xyes])
 
 dnl === Docs ===========================================================
 
@@ -211,7 +211,8 @@ if test x$enable_docs = xyes; then
 fi
 AM_CONDITIONAL([HAVE_VALADOC], [test x$have_valadoc = xyes])
 
-# Introspection
+dnl === Check for Introspection ========================================
+
 GOBJECT_INTROSPECTION_CHECK([1.38.0])
 
 dnl === Check for setrlimit ============================================
@@ -219,7 +220,7 @@ dnl === Check for setrlimit ============================================
 AC_CHECK_HEADERS([sys/resource.h sys/time.h],
         [have_sys_resource_h=yes; break;])
 
-AM_CONDITIONAL(HAVE_SYS_RESOURCE_H, test "x$have_sys_resource_h" = "xyes")
+AM_CONDITIONAL(HAVE_SYS_RESOURCE_H, [test x$have_sys_resource_h = xyes])
 
 
 dnl === Makefiles ======================================================

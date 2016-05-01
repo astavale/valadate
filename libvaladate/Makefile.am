@@ -33,7 +33,7 @@ libvaladate_1_0_la_LIBADD = \
 
 # includes
 libvaladate_1_0includedir = \
-	$(includedir)/libvaladate-1.0
+	$(includedir)/valadate-1.0
 
 libvaladate_1_0include_HEADERS = \
 	libvaladate-1.0.h
