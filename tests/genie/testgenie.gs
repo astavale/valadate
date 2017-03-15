@@ -1,4 +1,3 @@
-[indent=0]
 /*
  * Valadate - Unit testing library for GObject-based libraries.
  * Copyright (C) 20016  Chris Daley <chebizarro@gmail.com>
@@ -25,11 +24,11 @@ namespace Valadate.Framework.Tests
 	class TestGenie : TestCase
 		
 		[Test (name="test_one")]
-		def test_one ()
+		def test_one () raises AssertError
 			Assert.is_true(true)
 
 
 		[Test (name="test_two")]
-		def test_two ()
+		def test_two () raises AssertError
 			Assert.is_true(true)
 
