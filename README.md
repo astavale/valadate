@@ -189,7 +189,7 @@ This project adheres to the [Open Code of Conduct][code-of-conduct]. By particip
 
 Valadate was originally developed by [Jan Hudec](bulb@ucw.cz) with significant contributions from [Julien Peeters](contact@julienpeeters.fr) and [Simon Busch](morphis@gravedo.de) and was most recently maintained by the [Yorba Foundation](http://yorba.org/).
 
-Special thanks to Al Thomas and Mario Daniel for feedback and inspiration, the Vala mailing list and IRC channel for help and advice and the Vala developers and maintainers for their fantastic work. Oh and to you, for reading this far and for taking an interest in our little project. I hope you find it useful!
+Special thanks to Al Thomas and Mario Daniel Ruiz Saavedra for feedback and inspiration, the Vala mailing list and IRC channel for help and advice and the Vala developers and maintainers for their fantastic work. Oh and to you, for reading this far and for taking an interest in our little project. I hope you find it useful!
 
 ### Copyright
 
